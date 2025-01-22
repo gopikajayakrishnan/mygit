@@ -1,0 +1,12 @@
+name: my workflow   #name of workflow
+on: workflow dispatch  #when workflow should be run (here its is manually run)
+jobs: 
+  firstjob:  #name of job
+  runs-on: ubuntu-latest #vm
+  steps:
+    - name: hello 
+      run: echo"hello"
+    - name: hellobye
+      run: echo"bye"
+  
+   
