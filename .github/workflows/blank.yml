@@ -1,12 +1,13 @@
-name: my workflow   #name of workflow
-on: workflow dispatch  #when workflow should be run (here its is manually run)
+name: my workflow  # name of the workflow
+on: 
+  workflow_dispatch  # specifies the workflow is manually triggered
+
 jobs: 
-  firstjob:  #name of job
-  runs-on: ubuntu-latest #vm
-  steps:
-    - name: hello 
-      run: echo"hello"
-    - name: hellobye
-      run: echo"bye"
-  
-   
+  firstjob:  # name of the job
+    runs-on: ubuntu-latest  # specifies the virtual machine to run the job
+    steps:
+      - name: hello
+        run: echo "hello"  # corrected spacing and syntax
+
+      - name: hellobye
+        run: echo "bye"  # corrected spacing and syntax
