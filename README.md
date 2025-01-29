@@ -1,20 +1,75 @@
-# Requirements
+# Terraform Module for EKS Cluster Deployment with Kubernetes Add-ons
+
+### Module Definition
+
+```hcl
+module "eks_kubernetes" {
+  source = "./eks-kubernetes"  # Path to the module folder
+  version = "~> 1.0"
+
+  cluster_name       = "my-cluster"
+  eks_version        = "1.31"
+  vpc_id             = var.vpc_id  # Reference the vpc_id variable
+  eks_subnets        = var.eks_subnets  # Reference the eks_subnets variable
+  eks_log_types      = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  eks_instance_types = ["t2.micro"]
+  eks_desired_size   = 2
+  eks_max_size       = 3
+  eks_min_size       = 1
+
+  node_policies = [
+    "AmazonEKSWorkerNodePolicy",
+    "AmazonEC2ContainerRegistryReadOnly",
+    "AmazonEC2FullAccess",
+    "AmazonEKS_CNI_Policy"
+  ]
+
+  eks_addons = {
+    aws-ebs-csi-driver = {
+      most_recent = true
+    }
+    coredns = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+  }
+
+  enable_aws_load_balancer_controller = true
+  enable_cluster_proportional_autoscaler = true
+  enable_karpenter = true
+  enable_kube_prometheus_stack = true
+  enable_metrics_server = true
+  enable_external_dns = true
+  enable_cert_manager = true
+
+  tags = {
+    Environment = "dev"
+  }
+}
+```
+
+
+## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.9 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 5.0 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 1.31 |
+
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| Name        | Version   |
+|-------------|-----------|
+| aws         | >= 5.0    |
 
 ## Input Variables
-
-The following table lists the input variables used in the Terraform code, along with their corresponding real values, descriptions, and types.
 
 | Variable Name         | Value                                                     | Description                                                                      | Type             |
 |-----------------------|-----------------------------------------------------------|----------------------------------------------------------------------------------|------------------|
@@ -32,13 +87,13 @@ The following table lists the input variables used in the Terraform code, along 
 
 ## Output Variables
 
-The following table lists the output variables used in the Terraform code, along with their corresponding real values, descriptions, and types.
-
 | Output Name            | Value                                                   | Description                                                                      | Type             |
 |------------------------|---------------------------------------------------------|----------------------------------------------------------------------------------|------------------|
 | `eks_cluster_name`      | `aws_eks_cluster.eks_cluster.name`                      | The name of the EKS cluster created.                                             | `string`         |
 | `eks_cluster_endpoint`  | `aws_eks_cluster.eks_cluster.endpoint`                  | The endpoint URL of the EKS cluster.                                             | `string`         |
 | `eks_cluster_arn`       | `aws_eks_cluster.eks_cluster.arn`                       | The ARN of the EKS cluster.                                                      | `string`         |
+
+## Resources
 
 | Resource Name                          | Resource Type                       | Description                                                                 |
 |----------------------------------------|-------------------------------------|-----------------------------------------------------------------------------|
@@ -50,12 +105,5 @@ The following table lists the output variables used in the Terraform code, along
 | [`aws_eks_addon.coredns`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon)                | `aws_eks_addon`                     | EKS Addon for CoreDNS, which provides DNS services to the cluster.          |
 | [`aws_eks_addon.kube_proxy`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon)             | `aws_eks_addon`                     | EKS Addon for kube-proxy to enable network proxying within the EKS cluster.  |
 | [`aws_vpc_endpoint.interface_endpoint`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint)  | `aws_vpc_endpoint`                  | VPC interface endpoints for AWS services like SSM, EC2, ECR, etc.           |
-| [`aws_security_group.allow_endpoint`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)    | `aws_security_group`                | Security group to allow endpoint traffic within the VPC.                    |
-| [`aws_security_group.eks_security_group`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | `aws_security_group`                | Security group associated with the EKS cluster for controlling access.     |
-| [`aws_security_group.eks_node_sg`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)       | `aws_security_group`                | Security group for EKS node group, allowing HTTPS and Kubernetes API traffic. |
-
-
-
-
 
 
